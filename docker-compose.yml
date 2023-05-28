@@ -1,0 +1,99 @@
+version: "3.7"
+services:
+  plex:
+    image: plexinc/pms-docker
+    restart: unless-stopped
+    container_name: plexms
+    ports:
+      - "32400:32400/tcp"
+      - "3005:3005/tcp"
+      - "8324:8324/tcp"
+      - "32469:32469/tcp"
+      - "1900:1900/udp"
+      - "32410:32410/udp"
+      - "32412:32412/udp"
+      - "32413:32413/udp"
+      - "32414:32414/udp"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+      - PLEX_CLAIM=claim-WHjWz1t28MprYCkyxyta
+      - HOSTNAME="PlexServer"
+    volumes:
+      - "D:/Bibliothèque/Config/Plex:/config"
+      - "D:/Bibliothèque/Films:/movies"
+  overseerr:
+    image: sctx/overseerr:latest
+    container_name: overseerr
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=Europe/Paris
+      - PORT=5055
+    ports:
+      - 5055:5055
+    volumes:
+      - "D:/Bibliothèque/Config/Overseerr:/app/config"
+    restart: unless-stopped
+  radarr:
+    container_name: radarr
+    image: cr.hotio.dev/hotio/radarr
+    ports:
+      - "7878:7878"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=Europe/Paris
+    volumes:
+      - "D:/Bibliothèque/Config/Radarr:/config"
+      - "D:/Bibliothèque/Films:/downloads"
+  sonarr:
+    container_name: sonarr
+    image: cr.hotio.dev/hotio/sonarr
+    ports:
+      - "8989:8989"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=Europe/Paris
+    volumes:
+      - "D:/Bibliothèque/Config/Sonarr:/config"
+      - "D:/Bibliothèque/Séries:/downloads"
+  prowlarr:
+    container_name: prowlarr
+    image: cr.hotio.dev/hotio/prowlarr
+    ports:
+      - "9696:9696"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=Europe/Paris
+    volumes:
+      - "D:/Bibliothèque/Config/Prowlarr:/config"
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_HTML=${LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      - TZ=Europe/Paris
+    ports:
+      - "${PORT:-8191}:8191"
+    restart: unless-stopped
+  qbittorrent:
+    container_name: qbittorrent
+    image: cr.hotio.dev/hotio/qbittorrent
+    ports:
+      - "8080:8080"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=Europe/Paris
+    volumes:
+      - "D:/Bibliothèque/Config/qBitorrent:/config"
+      - "D:/Bibliothèque/Films:/app/qBittorrent/downloads"
